@@ -85097,10 +85097,38 @@ module['exports'] = faker;
 },{"./lib":"../node_modules/faker/lib/index.js","./lib/locales":"../node_modules/faker/lib/locales.js"}],"src/User.ts":[function(require,module,exports) {
 "use strict";
 
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
+var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  Object.defineProperty(o, k2, {
+    enumerable: true,
+    get: function get() {
+      return m[k];
+    }
+  });
+} : function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  o[k2] = m[k];
+});
+
+var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
+  Object.defineProperty(o, "default", {
+    enumerable: true,
+    value: v
+  });
+} : function (o, v) {
+  o["default"] = v;
+});
+
+var __importStar = this && this.__importStar || function (mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) for (var k in mod) {
+    if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+  }
+
+  __setModuleDefault(result, mod);
+
+  return result;
 };
 
 Object.defineProperty(exports, "__esModule", {
@@ -85110,19 +85138,24 @@ exports.User = void 0; // type definition files are installed with some npm modu
 // if it is not included for us, we have to add it manually definitely-typed
 // d.ts is a type definition file
 
-var faker_1 = __importDefault(require("faker")); // class exports are capitalized by convention
+var faker = __importStar(require("faker")); // class exports are capitalized by convention
 
 
 var User =
 /** @class */
 function () {
   function User() {
-    this.name = faker_1.default.name.firstName();
+    this.color = 'red';
+    this.name = faker.name.firstName();
     this.location = {
-      lat: parseFloat(faker_1.default.address.latitude()),
-      lng: parseFloat(faker_1.default.address.longitude())
+      lat: parseFloat(faker.address.latitude()),
+      lng: parseFloat(faker.address.longitude())
     };
   }
+
+  User.prototype.markerContent = function () {
+    return "User Name: " + this.name;
+  };
 
   return User;
 }();
@@ -85131,10 +85164,47 @@ exports.User = User;
 },{"faker":"../node_modules/faker/index.js"}],"src/Company.ts":[function(require,module,exports) {
 "use strict";
 
+var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  Object.defineProperty(o, k2, {
+    enumerable: true,
+    get: function get() {
+      return m[k];
+    }
+  });
+} : function (o, m, k, k2) {
+  if (k2 === undefined) k2 = k;
+  o[k2] = m[k];
+});
+
+var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
+  Object.defineProperty(o, "default", {
+    enumerable: true,
+    value: v
+  });
+} : function (o, v) {
+  o["default"] = v;
+});
+
+var __importStar = this && this.__importStar || function (mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) for (var k in mod) {
+    if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+  }
+
+  __setModuleDefault(result, mod);
+
+  return result;
+};
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Company = void 0;
+exports.Company = void 0; // to avoid interop flag stuff
+// https://stackoverflow.com/questions/56238356/understanding-esmoduleinterop-in-tsconfig-file
+
+var faker = __importStar(require("faker"));
 
 var Company =
 /** @class */
@@ -85144,15 +85214,63 @@ function () {
     this.catchPhrase = faker.company.catchPhrase();
     this.location = {
       //lat: faker.address.latitude(),
-      lat: faker.address.latitude(),
-      lng: faker.address.longitude()
+      lat: parseFloat(faker.address.latitude()),
+      lng: parseFloat(faker.address.longitude())
     };
   }
+
+  Company.prototype.markerContent = function () {
+    return "\n    <div>\n    <h1>\n      Company Name: " + this.companyName + "\n    </h1>\n    <h3>\n      Catch phrase: " + this.catchPhrase + "\n    </h3>\n    </div>\n    ";
+  };
 
   return Company;
 }();
 
 exports.Company = Company;
+},{"faker":"../node_modules/faker/index.js"}],"src/CustomMap.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.CustomMap = void 0;
+
+var CustomMap =
+/** @class */
+function () {
+  function CustomMap(divId) {
+    this.googleMap = new google.maps.Map(document.getElementById(divId), {
+      zoom: 1,
+      center: {
+        lat: 0,
+        lng: 0
+      }
+    });
+  } //addMarker(mappable: User | Company): void {
+
+
+  CustomMap.prototype.addMarker = function (mappable) {
+    var _this = this;
+
+    var marker = new google.maps.Marker({
+      map: this.googleMap,
+      position: {
+        lat: mappable.location.lat,
+        lng: mappable.location.lng
+      }
+    });
+    marker.addListener('click', function () {
+      var infoWindow = new google.maps.InfoWindow({
+        content: mappable.markerContent()
+      });
+      infoWindow.open(_this.googleMap, marker);
+    });
+  };
+
+  return CustomMap;
+}();
+
+exports.CustomMap = CustomMap;
 },{}],"src/index.ts":[function(require,module,exports) {
 "use strict";
 
@@ -85164,11 +85282,23 @@ var User_1 = require("./User");
 
 var Company_1 = require("./Company");
 
-var user = new User_1.User();
-console.log(user);
-var company = new Company_1.Company();
-console.log(company);
-},{"./User":"src/User.ts","./Company":"src/Company.ts"}],"../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+var CustomMap_1 = require("./CustomMap");
+
+var user = new User_1.User(); //console.log(user);
+
+var company = new Company_1.Company(); //console.log(company);
+//const map = new google.maps.Map(document.getElementById('map'), {
+//zoom: 1,
+//center: {
+//lat: company.location.lat,
+//lng: company.location.lng,
+//}
+//});
+
+var customMap = new CustomMap_1.CustomMap('map');
+customMap.addMarker(user);
+customMap.addMarker(company);
+},{"./User":"src/User.ts","./Company":"src/Company.ts","./CustomMap":"src/CustomMap.ts"}],"../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -85196,7 +85326,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49661" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50771" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
