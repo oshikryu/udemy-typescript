@@ -1,7 +1,10 @@
-export class NumbersCollection {
-  constructor(public data: number[]) {
+import { Sorter } from './sorter';
 
+export class NumbersCollection extends Sorter {
+  constructor(public data: number[]) {
+    super();
   }
+
   // do not call like function, automatically execute as property
   get length(): number {
     return this.data.length;

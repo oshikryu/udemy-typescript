@@ -13,31 +13,32 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NumbersCollection = void 0;
+exports.CharactersCollection = void 0;
 var sorter_1 = require("./sorter");
-var NumbersCollection = /** @class */ (function (_super) {
-    __extends(NumbersCollection, _super);
-    function NumbersCollection(data) {
+var CharactersCollection = /** @class */ (function (_super) {
+    __extends(CharactersCollection, _super);
+    function CharactersCollection(data) {
         var _this = _super.call(this) || this;
         _this.data = data;
         return _this;
     }
-    Object.defineProperty(NumbersCollection.prototype, "length", {
-        // do not call like function, automatically execute as property
+    Object.defineProperty(CharactersCollection.prototype, "length", {
         get: function () {
             return this.data.length;
         },
         enumerable: false,
         configurable: true
     });
-    NumbersCollection.prototype.compare = function (leftIndex, rightIndex) {
-        return this.data[leftIndex] > this.data[rightIndex];
+    CharactersCollection.prototype.compare = function (leftIndex, rightIndex) {
+        return (this.data[leftIndex].toLowerCase() > this.data[rightIndex].toLowerCase());
     };
-    NumbersCollection.prototype.swap = function (leftIndex, rightIndex) {
-        var leftHand = this.data[leftIndex];
-        this.data[leftIndex] = this.data[rightIndex];
-        this.data[rightIndex] = leftHand;
+    CharactersCollection.prototype.swap = function (leftIndex, rightIndex) {
+        var characters = this.data.split('');
+        var leftHand = characters[leftIndex];
+        characters[leftIndex] = characters[rightIndex];
+        characters[rightIndex] = leftHand;
+        this.data = characters.join('');
     };
-    return NumbersCollection;
+    return CharactersCollection;
 }(sorter_1.Sorter));
-exports.NumbersCollection = NumbersCollection;
+exports.CharactersCollection = CharactersCollection;
