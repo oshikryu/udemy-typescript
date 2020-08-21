@@ -1,4 +1,15 @@
-import express, { Router, Request, Response } from 'express';
+import express, { Router, Request, Response, NextFunction } from 'express';
+
+function requireAuth(req: Request, res: Response, next: NextFunction): void {
+  if (req.session && req.session.loggedIn) {
+    // middleware functions are not supposed to return anything
+    next();
+    return;
+  }
+
+  res.status(403);
+  res.send('Permission Denied');
+}
 
 const router = Router();
 
@@ -64,6 +75,10 @@ router.get('/logout', (req: Request, res: Response) => {
 
   // redirect to the root route
   res.redirect('/');
+});
+
+router.get('/protected', requireAuth, (req: Request, res: Response) => {
+  res.send('Welcome to protected route, logged in user');
 });
 
 export { router };

@@ -2,6 +2,15 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.router = void 0;
 var express_1 = require("express");
+function requireAuth(req, res, next) {
+    if (req.session && req.session.loggedIn) {
+        // middleware functions are not supposed to return anything
+        next();
+        return;
+    }
+    res.status(403);
+    res.send('Permission Denied');
+}
 var router = express_1.Router();
 exports.router = router;
 router.get('/', function (req, res) {
@@ -37,4 +46,7 @@ router.get('/logout', function (req, res) {
     req.session = { loggedIn: null };
     // redirect to the root route
     res.redirect('/');
+});
+router.get('/protected', requireAuth, function (req, res) {
+    res.send('Welcome to protected route, logged in user');
 });
