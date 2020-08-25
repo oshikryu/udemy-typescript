@@ -1,17 +1,22 @@
 import React from 'react';
 //import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import { Todo, fetchTodos } from './actions';
+import { Todo, fetchTodos, deleteTodo } from './actions';
 import { StoreState } from './reducers';
 
 interface AppProps {
   color?: string;
   todos: Todo[];
-  fetchTodos(): any;
+  // Cheating for redux-thunk and type-definition file
+  //fetchTodos: typeof fetchTodos;
+  //deleteTodo: typeof deleteTodo,
+  fetchTodos: Function;
+  deleteTodo: Function,
 }
 
 interface AppState {
   counter: number;
+  fetching: boolean;
 }
 
 // functional component
@@ -27,7 +32,13 @@ interface AppState {
 class AppComponent extends React.Component <AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
-    this.state = { counter: 0 };
+    this.state = { counter: 0, fetching: false };
+  }
+
+  componentDidUpdate(prevProps: AppProps): void {
+    if (!prevProps.todos.length && this.props.todos.length) {
+      this.setState({fetching: false});
+    }
   }
 
   onIncrement = (): void => {
@@ -38,14 +49,19 @@ class AppComponent extends React.Component <AppProps, AppState> {
     this.setState({counter: this.state.counter - 1});
   }
 
+  onTodoClick = (id: number): void => {
+    this.props.deleteTodo(id);
+  }
+
   onButtonClick = (): void => {
     this.props.fetchTodos();
+    this.setState({fetching: true})
   }
 
   renderList(): JSX.Element[] {
     return this.props.todos.map((todo: Todo) => {
       return (
-        <li key={todo.id}>
+        <li onClick={() => this.onTodoClick(todo.id)} key={todo.id}>
           {todo.title}
         </li>
       );
@@ -72,6 +88,7 @@ class AppComponent extends React.Component <AppProps, AppState> {
         </div>
         <ul>
           {this.renderList()}
+          {this.state.fetching && 'L o a d i n g . . .'}
         </ul>
       </div>
     )
@@ -87,9 +104,14 @@ const mapStateToProps = (state: StoreState): { todos: Todo[], color: string} => 
 
 // first set for the configuration
 // second for the component (aka mapDispatchToProps)
+// what does react-redux think an action-creator is
+// connect thinks it is a function that returns and object and nothing else
+//
+// App returns void, not an action
+// redux-thunk returns a function that dispatches an action
 export const App = connect(
   mapStateToProps,
-  { fetchTodos }
+  { fetchTodos, deleteTodo }
 )(AppComponent);
 
 

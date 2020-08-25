@@ -8,9 +8,14 @@ export interface Todo {
   completed: boolean;
 }
 
-export interface fetchTodosAction {
+export interface FetchTodosAction {
   type: ActionTypes.fetchTodos;
   payload: Todo[];
+}
+
+export interface DeleteTodoAction {
+  type: ActionTypes.deleteTodo;
+  payload: number;
 }
 
 export const fetchTodos = () => {
@@ -21,9 +26,16 @@ export const fetchTodos = () => {
     // with the correct types and properties
     //
     // Adding in the optional generic for action creators
-    dispatch<fetchTodosAction>({
+    dispatch<FetchTodosAction>({
       type: ActionTypes.fetchTodos,
       payload: response.data, // << expecting an array of Todos as defined by the action interface
     })
+  }
+};
+
+export const deleteTodo = (id: number): DeleteTodoAction => {
+  return {
+    type: ActionTypes.deleteTodo,
+    payload:id,
   }
 };
